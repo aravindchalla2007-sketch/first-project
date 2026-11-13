@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Attendance Analysis Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-100 font-sans text-slate-800 antialiased min-h-screen flex flex-col md:flex-row">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-full md:w-64 bg-slate-900 text-white flex-shrink-0 flex flex-col justify-between p-5">
+        <div>
+            <!-- App Brand Logo -->
+            <div class="flex items-center gap-3 mb-8 px-2">
+                <div class="bg-sky-500 text-white p-2 rounded-xl flex items-center justify-center shadow-lg shadow-sky-500/30">
+                    <i class="fa-solid fa-clipboard-user text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight tracking-wide">AttendancePro</h1>
+                    <span class="text-xs text-slate-400">Database & Analytics</span>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="space-y-1">
+                <a href="#dashboard" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-sky-600 text-white font-medium shadow-md transition-all">
+                    <i class="fa-solid fa-chart-pie w-5"></i> Dashboard
+                </a>
+                <a href="#add-data-section" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+                    <i class="fa-solid fa-user-plus w-5"></i> Entry Forms
+                </a>
+                <a href="#employees-table-section" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+                    <i class="fa-solid fa-users w-5"></i> Employees
+                </a>
+                <a href="#records-table-section" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+                    <i class="fa-solid fa-list-check w-5"></i> Attendance Logs
+                </a>
+            </nav>
+        </div>
+
+        <!-- System info footer -->
+        <div class="pt-6 border-t border-slate-800 text-xs text-slate-400 flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+            <span>Database Connected</span>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full overflow-y-auto">
+        <!-- Header -->
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Attendance Analysis</h2>
+                <p class="text-slate-500 text-sm mt-0.5">Real-time attendance monitoring, employee statistics, and database logs.</p>
+            </div>
+            <div class="flex items-center gap-3 bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-200">
+                <i class="fa-regular fa-calendar text-sky-500"></i>
+                <span id="current-date-display" class="text-sm font-semibold text-slate-700">--</span>
+            </div>
+        </header>
+
+        <!-- Summary Metric Cards -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+            <!-- Total Employees -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between transition-all hover:shadow-md">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Staff</p>
+                    <h3 id="stat-total" class="text-3xl font-bold text-slate-900 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl font-semibold">
+                    <i class="fa-solid fa-id-badge"></i>
+                </div>
+            </div>
+
+            <!-- Present Today -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between transition-all hover:shadow-md">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Present Today</p>
+                    <h3 id="stat-present" class="text-3xl font-bold text-emerald-600 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-semibold">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+            </div>
+
+            <!-- Late Today -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between transition-all hover:shadow-md">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Late Today</p>
+                    <h3 id="stat-late" class="text-3xl font-bold text-amber-500 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl font-semibold">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+            </div>
+
+            <!-- Absent Today -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between transition-all hover:shadow-md">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Absent Today</p>
+                    <h3 id="stat-absent" class="text-3xl font-bold text-rose-500 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center text-xl font-semibold">
+                    <i class="fa-solid fa-user-xmark"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- Entry Forms Section -->
+        <section id="add-data-section" class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Add Employee Form -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80">
+                <div class="flex items-center gap-2 mb-4 border-b border-slate-100 pb-3">
+                    <i class="fa-solid fa-user-plus text-sky-500"></i>
+                    <h3 class="text-lg font-bold text-slate-900">Add New Employee</h3>
+                </div>
+                <form id="employee-form" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Full Name</label>
+                        <input type="text" id="emp-name" required placeholder="e.g. Sarah Connor" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Department</label>
+                        <select id="emp-dept" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all">
+                            <option value="">Select Department</option>
+                            <option value="Engineering">Engineering</option>
+                            <option value="Human Resources">Human Resources</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Sales">Sales</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Email Address</label>
+                        <input type="email" id="emp-email" required placeholder="sarah@company.com" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all">
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-sky-600 hover:bg-sky-700 text-white font-semibold text-sm rounded-xl transition-all shadow-md shadow-sky-600/20 active:scale-[0.99]">
+                        Register Employee
+                    </button>
+                </form>
+            </div>
+
+            <!-- Mark Attendance Form -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80">
+                <div class="flex items-center gap-2 mb-4 border-b border-slate-100 pb-3">
+                    <i class="fa-solid fa-calendar-check text-sky-500"></i>
+                    <h3 class="text-lg font-bold text-slate-900">Mark Attendance</h3>
+                </div>
+                <form id="attendance-form" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Select Employee</label>
+                        <select id="att-emp-id" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all">
+                            <option value="">Choose employee...</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Date</label>
+                            <input type="date" id="att-date" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Status</label>
+                            <select id="att-status" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all">
+                                <option value="Present">Present</option>
+                                <option value="Late">Late</option>
+                                <option value="Absent">Absent</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm rounded-xl transition-all shadow-md active:scale-[0.99] mt-2">
+                        Record Attendance
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Registered Employees Table -->
+        <section id="employees-table-section" class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 mb-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900">Registered Employees Directory</h3>
+                    <p class="text-slate-500 text-xs mt-0.5">List of active personnel stored in system database.</p>
+                </div>
+                <div class="w-full sm:w-64">
+                    <input type="text" id="search-emp" placeholder="Search staff name or dept..." class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20">
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-400 uppercase text-[11px] tracking-wider font-semibold border-b border-slate-100">
+                            <th class="py-3 px-4">ID</th>
+                            <th class="py-3 px-4">Employee Name</th>
+                            <th class="py-3 px-4">Department</th>
+                            <th class="py-3 px-4">Email</th>
+                        </tr>
+                    </thead>
+                    <tbody id="employees-tbody" class="divide-y divide-slate-100 text-sm">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Attendance Logs Table -->
+        <section id="records-table-section" class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900">Attendance Database Log</h3>
+                    <p class="text-slate-500 text-xs mt-0.5">Historical records and status tracking.</p>
+                </div>
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <select id="filter-status" class="px-3.5 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-sky-500">
+                        <option value="ALL">All Statuses</option>
+                        <option value="Present">Present Only</option>
+                        <option value="Late">Late Only</option>
+                        <option value="Absent">Absent Only</option>
+                    </select>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-400 uppercase text-[11px] tracking-wider font-semibold border-b border-slate-100">
+                            <th class="py-3 px-4">Record ID</th>
+                            <th class="py-3 px-4">Employee Name</th>
+                            <th class="py-3 px-4">Department</th>
+                            <th class="py-3 px-4">Date</th>
+                            <th class="py-3 px-4">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendance-tbody" class="divide-y divide-slate-100 text-sm">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- In-memory Data & Application Logic Script -->
+    <script>
+        // Default Today's Date String
+        const todayStr = new Date().toISOString().split('T')[0];
+        document.getElementById('current-date-display').innerText = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+        document.getElementById('att-date').value = todayStr;
+
+        // In-Memory Database Storage
+        let employees = [
+            { id: 101, name: "Alice Smith", department: "Engineering", email: "alice@company.com" },
+            { id: 102, name: "Bob Jones", department: "Marketing", email: "bob@company.com" },
+            { id: 103, name: "Charlie Brown", department: "Human Resources", email: "charlie@company.com" },
+            { id: 104, name: "Diana Prince", department: "Engineering", email: "diana@company.com" }
+        ];
+
+        let attendanceRecords = [
+            { id: 1001, employeeId: 101, date: todayStr, status: "Present" },
+            { id: 1002, employeeId: 102, date: todayStr, status: "Late" },
+            { id: 1003, employeeId: 103, date: todayStr, status: "Absent" },
+            { id: 1004, employeeId: 104, date: todayStr, status: "Present" }
+        ];
+
+        // System Initialization
+        function initDashboard() {
+            renderEmployees();
+            renderAttendance();
+            updateDropdowns();
+            recalculateAnalytics();
+        }
+
+        // Calculate & Update Stat Cards
+        function recalculateAnalytics() {
+            document.getElementById('stat-total').innerText = employees.length;
+
+            const todayLogs = attendanceRecords.filter(r => r.date === todayStr);
+            const present = todayLogs.filter(r => r.status === 'Present').length;
+            const late = todayLogs.filter(r => r.status === 'Late').length;
+            const absent = todayLogs.filter(r => r.status === 'Absent').length;
+
+            document.getElementById('stat-present').innerText = present;
+            document.getElementById('stat-late').innerText = late;
+            document.getElementById('stat-absent').innerText = absent;
+        }
+
+        // Populate Employee Select Dropdowns
+        function updateDropdowns() {
+            const select = document.getElementById('att-emp-id');
+            select.innerHTML = '<option value="">Choose employee...</option>';
+            employees.forEach(emp => {
+                const opt = document.createElement('option');
+                opt.value = emp.id;
+                opt.innerText = `${emp.name} (${emp.department})`;
+                select.appendChild(opt);
+            });
+        }
+
+        // Render Registered Employees Table
+        function renderEmployees(filterQuery = '') {
+            const tbody = document.getElementById('employees-tbody');
+            tbody.innerHTML = '';
+
+            const filtered = employees.filter(emp => 
+                emp.name.toLowerCase().includes(filterQuery.toLowerCase()) || 
+                emp.department.toLowerCase().includes(filterQuery.toLowerCase())
+            );
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-slate-400">No employees found.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(emp => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition-colors";
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-mono text-xs text-slate-400">#${emp.id}</td>
+                    <td class="py-3 px-4 font-semibold text-slate-800">${emp.name}</td>
+                    <td class="py-3 px-4 text-slate-600">${emp.department}</td>
+                    <td class="py-3 px-4 text-slate-500">${emp.email}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Render Attendance Records Table
+        function renderAttendance(statusFilter = 'ALL') {
+            const tbody = document.getElementById('attendance-tbody');
+            tbody.innerHTML = '';
+
+            let filtered = attendanceRecords;
+            if (statusFilter !== 'ALL') {
+                filtered = attendanceRecords.filter(r => r.status === statusFilter);
+            }
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400">No attendance logs found.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(rec => {
+                const emp = employees.find(e => e.id === rec.employeeId) || { name: 'Unknown', department: 'N/A' };
+                
+                // Color badges per status
+                let badgeStyle = "bg-emerald-50 text-emerald-700 border-emerald-200";
+                if (rec.status === 'Late') badgeStyle = "bg-amber-50 text-amber-700 border-amber-200";
+                if (rec.status === 'Absent') badgeStyle = "bg-rose-50 text-rose-700 border-rose-200";
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition-colors";
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-mono text-xs text-slate-400">LOG-${rec.id}</td>
+                    <td class="py-3 px-4 font-semibold text-slate-800">${emp.name}</td>
+                    <td class="py-3 px-4 text-slate-600">${emp.department}</td>
+                    <td class="py-3 px-4 text-slate-500">${rec.date}</td>
+                    <td class="py-3 px-4">
+                        <span class="inline-block px-2.5 py-1 rounded-full text-xs font-semibold border ${badgeStyle}">
+                            ${rec.status}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Form Event: Add New Employee
+        document.getElementById('employee-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('emp-name').value.trim();
+            const department = document.getElementById('emp-dept').value;
+            const email = document.getElementById('emp-email').value.trim();
+
+            if (name && department && email) {
+                const newEmp = {
+                    id: 100 + employees.length + 1,
+                    name: name,
+                    department: department,
+                    email: email
+                };
+                employees.push(newEmp);
+                
+                // Reset form and refresh interface
+                this.reset();
+                initDashboard();
+            }
+        });
+
+        // Form Event: Mark Attendance
+        document.getElementById('attendance-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const empId = parseInt(document.getElementById('att-emp-id').value);
+            const date = document.getElementById('att-date').value;
+            const status = document.getElementById('att-status').value;
+
+            if (empId && date && status) {
+                const newLog = {
+                    id: 1000 + attendanceRecords.length + 1,
+                    employeeId: empId,
+                    date: date,
+                    status: status
+                };
+                attendanceRecords.unshift(newLog); // Put newest log at top
+
+                initDashboard();
+            }
+        });
+
+        // Search Employees Input Filter
+        document.getElementById('search-emp').addEventListener('input', function(e) {
+            renderEmployees(e.target.value);
+        });
+
+        // Status Filter Dropdown Change
+        document.getElementById('filter-status').addEventListener('change', function(e) {
+            renderAttendance(e.target.value);
+        });
+
+        // Run dashboard on page load
+        window.onload = initDashboard;
+    </script>
+</body>
+</html>
